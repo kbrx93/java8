@@ -533,12 +533,21 @@ public class TreeMap<K,V>
      *         does not permit null keys
      */
     public V put(K key, V value) {
+        // root 为维护的全局引用
         Entry<K,V> t = root;
         if (t == null) {
+            /**
+             * 当 root 为 null 的时候，也就是当添加第一个结点时，首先检查传入的 key 是否可比较
+             * 或者在初始化这个 TreeMap 的时候有没有传入一个比较器，如果都没有的话将无法对 key 进行比较
+             * 会抛出异常
+             */
             compare(key, key); // type (and possibly null) check
 
+            // 构造结点
             root = new Entry<>(key, value, null);
+            // size赋值为 1
             size = 1;
+            // 结构修改次数 + 1
             modCount++;
             return null;
         }
@@ -546,7 +555,15 @@ public class TreeMap<K,V>
         Entry<K,V> parent;
         // split comparator and comparable paths
         Comparator<? super K> cpr = comparator;
+        //区别比较器比较及比较接口比较
+        // 如果比较器不为空，用比较器去比较 key
         if (cpr != null) {
+            /**
+             * 1. 如果新传入的 key 比 当前 parent 的 key 小（<0），则向下比较左子树
+             * 2. 如果新传入的 key 比 当前 parent 的 key 大（>0），则向下比较右子树
+             * 3. 如果相等，则直接进行替换操作并返回
+             * 如果上面没有返回，即没有相等的 key，则循环最终的结果是找到新插入的节点应该插入的位置的父节点（parent）
+             */
             do {
                 parent = t;
                 cmp = cpr.compare(key, t.key);
@@ -558,6 +575,7 @@ public class TreeMap<K,V>
                     return t.setValue(value);
             } while (t != null);
         }
+        // comparator 为空，用 comparable 比较
         else {
             if (key == null)
                 throw new NullPointerException();
@@ -574,14 +592,18 @@ public class TreeMap<K,V>
                     return t.setValue(value);
             } while (t != null);
         }
+        // 上面两种比较大同小异，都是得到了一个应插入位置的父节点
         Entry<K,V> e = new Entry<>(key, value, parent);
+        // 判断应该插在左节点还是右节点
         if (cmp < 0)
             parent.left = e;
         else
             parent.right = e;
+        // 插入节点 e 后对红黑树的修复操作！？
         fixAfterInsertion(e);
         size++;
         modCount++;
+        //你正常插入的话是返回 null
         return null;
     }
 
