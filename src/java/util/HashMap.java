@@ -2073,7 +2073,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                 xp.left = x;
                             else
                                 xp.right = x;
-                            // 插入的数据可能破坏了红黑树的性质，需要调整一下平衡
+                            // 插入的数据可能破坏了红黑树的性质，需要调整一下平衡，核心中的核心中的核心
                             root = balanceInsertion(root, x);
                             // 这个循环唯一的出口
                             break;
