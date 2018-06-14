@@ -39,37 +39,11 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ForkJoinPool;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.Function;
-import java.util.function.IntBinaryOperator;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntBiFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongBiFunction;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 /**
@@ -682,6 +656,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * never be used in index calculations because of table bounds.
      */
     static final int spread(int h) {
+        // 与 HashMap 中取 hash 的方法类似，高 16 位与低 16 位相与
+        // 不同的是需要保存第一位为 0
         return (h ^ (h >>> 16)) & HASH_BITS;
     }
 
@@ -1008,6 +984,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /** Implementation for put and putIfAbsent */
     final V putVal(K key, V value, boolean onlyIfAbsent) {
+        // key 和 value 均不能为 null
         if (key == null || value == null) throw new NullPointerException();
         int hash = spread(key.hashCode());
         int binCount = 0;
