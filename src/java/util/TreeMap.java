@@ -341,6 +341,8 @@ public class TreeMap<K,V>
      */
     final Entry<K,V> getEntry(Object key) {
         // Offload comparator-based version for sake of performance
+        // 分流，提高性能
+        // 如果比较器不为空，则使用比较器进行遍历，提高性能。比较器对比接口性能更高？
         if (comparator != null)
             return getEntryUsingComparator(key);
         if (key == null)
@@ -348,6 +350,7 @@ public class TreeMap<K,V>
         @SuppressWarnings("unchecked")
             Comparable<? super K> k = (Comparable<? super K>) key;
         Entry<K,V> p = root;
+        // 进行向下遍历
         while (p != null) {
             int cmp = k.compareTo(p.key);
             if (cmp < 0)
@@ -361,6 +364,7 @@ public class TreeMap<K,V>
     }
 
     /**
+     * 注释值得一看
      * Version of getEntry using comparator. Split off from getEntry
      * for performance. (This is not worth doing for most methods,
      * that are less dependent on comparator performance, but is
@@ -622,6 +626,9 @@ public class TreeMap<K,V>
      *         does not permit null keys
      */
     public V remove(Object key) {
+        // 先通过 getEntry 方法由 key 获取对应的 Entry
+        // 如果没有，则直接返回
+        // 有则返回旧值，并调用 deleteEntry() 方法删除节点
         Entry<K,V> p = getEntry(key);
         if (p == null)
             return null;
@@ -2168,6 +2175,7 @@ public class TreeMap<K,V>
      * Returns the successor of the specified Entry, or null if no such.
      */
     static <K,V> TreeMap.Entry<K,V> successor(Entry<K,V> t) {
+        // 本质上就是寻找中序遍历中 t 的下一个节点（接任者）
         if (t == null)
             return null;
         else if (t.right != null) {
@@ -2321,11 +2329,15 @@ public class TreeMap<K,V>
      * Delete node p, and then rebalance the tree.
      */
     private void deleteEntry(Entry<K,V> p) {
+        // 删除节点，并重新调整红黑树的平衡性
         modCount++;
         size--;
 
         // If strictly internal, copy successor's element to p and then make p
         // point to successor.
+        // 如果需要删除的节点两个儿子均不为空，则调用 successor 方法找到中序遍历序列中该节点的下一个节点
+        // 并且「复制」下一个节点数据到本节点
+        // 如果 p 有两个孩子，那么它的后继一定没有左子树，下面 replacement 直接替代也就可以理解
         if (p.left != null && p.right != null) {
             Entry<K,V> s = successor(p);
             p.key = s.key;
@@ -2337,6 +2349,7 @@ public class TreeMap<K,V>
         Entry<K,V> replacement = (p.left != null ? p.left : p.right);
 
         if (replacement != null) {
+            // 如果替代结点不为空，也就意味着需要将子树「接上去」
             // Link replacement to parent
             replacement.parent = p.parent;
             if (p.parent == null)
@@ -2350,11 +2363,18 @@ public class TreeMap<K,V>
             p.left = p.right = p.parent = null;
 
             // Fix replacement
+            // 如果删除的结点为红色，意味着它的父、儿子结点一定是黑色，可以直接接在一起，如果是黑色，
+            // 则无法保证什么，所以需要调整
             if (p.color == BLACK)
                 fixAfterDeletion(replacement);
         } else if (p.parent == null) { // return if we are the only node.
+            // p 没有子结点又没有根
             root = null;
         } else { //  No children. Use self as phantom replacement and unlink.
+            // p 没有子结点但有父结点，即 p 为 nil 结点的父结点，直接删掉即可
+            // 不过在删掉之前需要判断是不是黑色结点，如果是的话，那么需要调整树，让每条路径上黑色结点数相等
+            // 如果删除的结点为红色，意味着它的父、儿子结点一定是黑色，可以直接接在一起，如果是黑色，
+            // 则无法保证什么，所以需要调整
             if (p.color == BLACK)
                 fixAfterDeletion(p);
 
