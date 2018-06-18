@@ -813,7 +813,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         /**
                          * 在这循环里主要干一件事，就是将每条链分成两条链，lo 和 hi
                          * lo 表示重新计算后位置不变，hi 则是放在对应 newTab[j + oldCap]
-                         * 同时注意，不会逆序，不会逆序，不会逆序
+                         * 同时注意，分成两条链后节点顺序不会逆序
                          */
                         do {
                             next = e.next;
