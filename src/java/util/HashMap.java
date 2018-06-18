@@ -628,7 +628,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     public V put(K key, V value) {
         /**
          * hash 方法：
-         * // 保留 key 的 hashCode 的后 16 位，作为 hash 值
+         * 保留 key 的 hashCode 的后 16 位，作为 hash 值
          * return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16)
          */
         return putVal(hash(key), key, value, false, true);
