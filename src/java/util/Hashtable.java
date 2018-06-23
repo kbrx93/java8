@@ -256,7 +256,7 @@ public class Hashtable<K,V>
      * @see     Map
      */
     public synchronized Enumeration<K> keys() {
-        return this.<K>getEnumeration(KEYS);
+        return this.getEnumeration(KEYS);
     }
 
     /**
@@ -271,7 +271,7 @@ public class Hashtable<K,V>
      * @see     Map
      */
     public synchronized Enumeration<V> elements() {
-        return this.<V>getEnumeration(VALUES);
+        return this.getEnumeration(VALUES);
     }
 
     /**
@@ -427,7 +427,7 @@ public class Hashtable<K,V>
                 // 重新计算在新数组中的索引位置
                 int index = (e.hash & 0x7FFFFFFF) % newCapacity;
 
-                // 头插法
+                // 头插法，故新数组中链顺序与旧链相反
                 e.next = (Entry<K,V>)newMap[index];
                 newMap[index] = e;
             }
