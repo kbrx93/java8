@@ -435,6 +435,11 @@ public class LinkedList<E>
             return false;
 
         Node<E> pred, succ;
+        // 传入的 index 为需插入节点的位置。
+        // 如果等于链表大小，则只需在链表的最后添加节点
+        // 如果不等，则在链表的中间添加节点
+        // succ 保存当前 index 位置上的节点
+        // pred 保存 succ 前置节点。
         if (index == size) {
             succ = null;
             pred = last;
@@ -443,16 +448,22 @@ public class LinkedList<E>
             pred = succ.prev;
         }
 
+        // 使用迭代器进行添加操作，所以链节点的顺序取决于迭代器返回的顺序。
         for (Object o : a) {
             @SuppressWarnings("unchecked") E e = (E) o;
+            // 生成新结点
             Node<E> newNode = new Node<>(pred, e, null);
+            // 前置结点为空，代表链表此时为空，将头指针指向新结点即可，否则将前置结点的后置指针指向新结点
             if (pred == null)
                 first = newNode;
             else
                 pred.next = newNode;
+            // 移动 pred 指针到新结点，进行循环
             pred = newNode;
         }
 
+        // succ 为 null，表明是在最后添加节点，直接将尾指针指向最后的结点即可。
+        // succ 不为空，则是在链表的中间添加节点，需要把 succ 及后面的节点「接到」 pred 节点后面完成添加。
         if (succ == null) {
             last = pred;
         } else {
@@ -460,6 +471,7 @@ public class LinkedList<E>
             succ.prev = pred;
         }
 
+        // 修正链表大小
         size += numNew;
         modCount++;
         return true;
